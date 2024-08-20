@@ -2,10 +2,11 @@
 # Marcus Chung (marcusvc@umich.edu)
 # 2024-06
 
+# Import OpenCV and numpy modules
 import cv2
 import numpy as np
 
-# Constants
+# Define variables
 MAX_VALUE = 20
 
 blur = 0
@@ -44,18 +45,24 @@ cv2.createTrackbar(sharpen_name, window_name, sharpen, MAX_VALUE, on_trackbar_up
 cv2.createTrackbar(grayscale_name, window_name, grayscale, MAX_VALUE, on_trackbar_update)
 
 # Read image
-filename = "umich.jpg"
+filename = "mfly.png"
 img = cv2.imread(filename)
 img = standard_scale(img)
 
 # Runs until the user quits
 while True:
+    """
+    BLUR
+    """
     img_copy = img
     kernel = blur * 2 + 1
     
     # Blur the image
     img_modified = cv2.GaussianBlur(img_copy, (kernel, kernel), 0)
     
+    """
+    SHARPEN
+    """
     # Create the sharpening kernel
     center = sharpen + 1
     edge = (1 - center) / 8
@@ -66,6 +73,9 @@ while True:
     # Sharpen the image
     img_modified = cv2.filter2D(img_modified, -1, kernel)
     
+    """
+    GRAYSCALE
+    """
     # Grayscale
     gray = cv2.cvtColor(img_modified, cv2.COLOR_BGR2GRAY)
     gray = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
@@ -74,10 +84,12 @@ while True:
     blend = grayscale / MAX_VALUE
     img_modified = cv2.addWeighted(gray, blend, img_modified, 1 - blend, 0)
     
+    """
+    IMAGE PREVIEW
+    """
     # Show image and mask side-by-side
     img_stack = np.hstack((img, img_modified))
     cv2.imshow(window_name, img_stack)
-    standard_scale(img)
     
     # Close window with 'q', save mask with s'
     key = cv2.waitKey(10)
@@ -87,5 +99,3 @@ while True:
         cv2.imwrite("final_image.jpg", img_modified)
 
 cv2.destroyAllWindows()
-
-

@@ -95,7 +95,7 @@ cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_high_update
 cv2.createTrackbar(blur_name, window_name, blur_strength, MAX_VALUE_BLUR, on_blur_update)
 
 # Read image
-filename = "umich.jpg"
+filename = "mfly.png"
 img = cv2.imread(filename)
 img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 img = standard_scale(img)
