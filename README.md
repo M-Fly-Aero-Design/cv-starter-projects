@@ -29,9 +29,9 @@ Before getting started on the tutorials, we need to go through the setup process
 If you don't have WSL 2 installed already, please follow these instructions: https://eecs280staff.github.io/tutorials/setup_wsl.html  
 
 > [!TIP]
-> **This link is from the EECS280 website (https://eecs280staff.github.io/tutorials/), which contains a lot of great information beyond what we'll be referencing here.
+> This link is from the EECS280 website (https://eecs280staff.github.io/tutorials/), which contains a lot of great information beyond what we'll be referencing here.
 
-From this point onwards, you should be doing everything in you Ubuntu bash shell. Your terminal should end with `$`. The code blocks in this tutorial will have my uniqname `marcusvc`, but yours will be different. It should look something like this:
+From this point onwards, you should be doing everything in your Ubuntu bash shell. Your terminal should end with `$`. The code blocks in this tutorial will have my uniqname `marcusvc`, but yours will be different. It should look something like this:
 
 ```console
 marcusvc:~$
@@ -165,7 +165,7 @@ We're ready to open VS Code. We can open it directly from our terminal, which wi
 (env) marcusvc:~/mfly_cv/cv-starter-projects$ code .
 ```
 
-You can open a terminal directly in VS Code. To open a terminal, use the shortcut `` ctrl + ` `` or access it from the top menu by going to `View > Terminal`. **Make sure your virtual environment is activated.**
+You can open a terminal directly in VS Code. To open a terminal, use the shortcut `` ctrl + ` `` or access it from the top menu by going to `View > Terminal`. **If you do open a new terminal, make sure your virtual environment is activated.**
 
 ### *:Zone.Identifier files
 
@@ -177,9 +177,10 @@ Lastly, you might be seeing some *:Zone.Identifier files. These files are auto g
 
 Some users don't see these files, I'm not entirely sure why. Either way, we don't need them.
 
+
 ## Auton Computer Vision Tutorial 1: Image Filters
 
-That was a lot of setup, but we're finally ready to start programming! This tutorial will introduce you to OpenCV, which is a popular computer vision library. You will use some of its functions to apply basic image processing such as blurring, sharpening, and grayscaling.
+That was a lot of setup, but we're finally ready to start programming! This project will introduce you to OpenCV, which is a popular computer vision library. You will use some of its functions to apply basic image processing such as blurring, sharpening, and grayscaling.
 
 First, let's preview what you'll be writing. We can run our Python script in our terminal as shown below.
 
@@ -187,7 +188,7 @@ First, let's preview what you'll be writing. We can run our Python script in our
 (env) marcusvc:~/mfly_cv/cv-starter-projects$ python3 cv_tutorial_1_key.py
 ```
 
-This will open an OpenCV window, where we see our original `mfly.png` photo on the left, and a filtered version on the right. Below the photos there are 3 sliders, that let you control the blurring, sharpening, and grayscaling. Play around with the sliders to see how this changes our filtered photo on the right.
+This will open an OpenCV window, where we see our original `mfly.png` photo on the left, and a filtered version on the right. Below the photos are 3 sliders that let you control the blurring, sharpening, and grayscaling. Play around with the sliders to see how this changes our filtered photo on the right.
 
 To close the OpenCV window and terminate the program, focus it then press `q`. 
 
@@ -377,3 +378,201 @@ We're ready to run our script! We can run it just like we ran `cv_tutorial_1_key
 ```
 
 Congratulations, you completed *Auton Computer Vision Tutorial 1: Image Filters*!
+
+
+## Auton Computer Vision Tutorial 2: Image Filters
+
+This project will introduce you to image thresholding. This is a very common task in computer vision, and it involves the process filtering out only certain parts of an image. For example, we might use image thresholding to filter out only the yellow parts of our plane in `mfly.png`.
+
+As before, let's preview what you'll be writing first.
+
+```console
+(env) marcusvc:~/mfly_cv/cv-starter-projects$ python3 cv_tutorial_2_key.py
+```
+
+This will open an OpenCV window similar to the first project, where we see our original `mfly.png` photo on the left, and a thresholded image on the right. Below the photos are 6 sliders that let you control which parts of your image you want to threshold using the HSV (Hue, Saturation, Value) color space. The areas in black are the parts of the image you are filtering out, while the areas in white are the parts you are keeping. Play around with the sliders to see if you can filter out only the yellow parts of the plane.
+> Visualization of the HSV color space: https://web.cs.uni-paderborn.de/cgvb/colormaster/web/color-systems/hsv.html.
+
+Let's try to program this ourselves. Start by opening up `cv_tutorial_2.py` in your editor. We'll be using the same modules that we used in the first project, so our `import` statements will be the same.
+
+```python
+# Import OpenCV and numpy modules
+import cv2
+import numpy as np
+```
+
+Next, let's declare some variables. In the HSV color space, saturation and value range from [0, 255], so we'll use `MAX_VALUE` as the upper bounds. However, hue ranges from [0, 360], so we'll create a separate `MAX_VALUE_H` variable to constrain it (OpenCV's hue only ranges from [0, 179], which is why we divide by 2).
+
+The `*_low` and `*_high` variables will be controlled by our sliders. We'll use these to threshold our image, so that we only keep colors that are within (H_low, S_low, V_low) and (H_high, S_high, V_high). For example, if we wanted to detect the yellow sections of our plane, we might only choose colors with a hue value within [10, 20].
+
+Lastly, we have some `*_name` variables similar to project 1 that correspond to our OpenCV window and the sliders.
+
+```python
+# Constants
+MAX_VALUE = 255
+MAX_VALUE_H = 360 // 2 - 1
+MAX_VALUE_BLUR = 20
+
+# Declare H, S, V starting values
+# H: (0, 179)  S: (0, 255)  V: (0, 255)
+H_low = 0
+S_low = 0
+V_low = 0
+H_high = MAX_VALUE_H
+S_high = MAX_VALUE
+V_high = MAX_VALUE
+blur_strength = 0
+
+# Trackbar names
+H_low_name = "Low H"
+S_low_name = "Low S"
+V_low_name = "Low V"
+H_high_name = "High H"
+S_high_name = "High S"
+V_high_name = "High V"
+blur_name = "Blur"
+
+window_name = "Auton CV Tutorial 2: Image Thresholding"
+```
+
+Now we'll define our update functions, which update our HSV variables whenever we move the sliders.
+
+```python
+# Functions to read trackbar values on update
+def on_H_update(_):
+    global H_low, H_high
+    
+    H_low = cv2.getTrackbarPos(H_low_name, window_name)
+    H_low = min(H_low, H_high - 1)
+    cv2.setTrackbarPos(H_low_name, window_name, H_low)
+    
+    H_high = cv2.getTrackbarPos(H_high_name, window_name)
+    H_high = max(H_high, H_low + 1)
+    cv2.setTrackbarPos(H_high_name, window_name, H_high)
+
+
+def on_S_update(_):
+    global S_low, S_high
+    
+    S_low = cv2.getTrackbarPos(S_low_name, window_name)
+    S_low = min(S_low, S_high - 1)
+    cv2.setTrackbarPos(S_low_name, window_name, S_low)
+    
+    S_high = cv2.getTrackbarPos(S_high_name, window_name)
+    S_high = max(S_high, S_low + 1)
+    cv2.setTrackbarPos(S_high_name, window_name, S_high)
+
+
+def on_V_update(_):
+    global V_low, V_high
+    
+    V_low = cv2.getTrackbarPos(V_low_name, window_name)
+    V_low = min(V_low, V_high - 1)
+    cv2.setTrackbarPos(V_low_name, window_name, V_low)
+    
+    V_high = cv2.getTrackbarPos(V_high_name, window_name)
+    V_high = max(V_high, V_low + 1)
+    cv2.setTrackbarPos(V_high_name, window_name, V_high)
+
+
+def on_blur_update(val):
+    global blur_strength
+    blur_strength = val
+```
+
+We'll also keep the same `standard_scale` function from project 1, as well as create our OpenCV window and the sliders.
+
+```python
+# Limits image size
+def standard_scale(img):
+    max_H, max_W = 720 // 2, 1280 // 2
+    H, W, _ = img.shape
+    if H > max_H and H * 16 / 9 >= W:
+        img = cv2.resize(img, (int(max_H * W / H), max_H))
+    elif W > max_W and W * 9 / 16 >= H:
+        img = cv2.resize(img, (max_W, int(max_W * H / W)))
+    return img
+
+
+# Create window and trackbars
+cv2.namedWindow(window_name)
+cv2.createTrackbar(H_low_name, window_name, H_low, MAX_VALUE_H, on_H_update)
+cv2.createTrackbar(H_high_name, window_name, H_high, MAX_VALUE_H, on_H_update)
+cv2.createTrackbar(S_low_name, window_name, S_low, MAX_VALUE, on_S_update)
+cv2.createTrackbar(S_high_name, window_name, S_high, MAX_VALUE, on_S_update)
+cv2.createTrackbar(V_low_name, window_name, V_low, MAX_VALUE, on_V_update)
+cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_update)
+cv2.createTrackbar(blur_name, window_name, blur_strength, MAX_VALUE_BLUR, on_blur_update)
+```
+
+Now we're ready to read our image. Note that this time we use `cv2.cvtColor` to convert our image from BGR (default) to HSV.
+
+```python
+# Read image
+filename = "mfly.png"
+img = cv2.imread(filename)
+img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+img = standard_scale(img)
+```
+
+Time to write our `while` loop, starting with image blurring. A common obstacle we face when thresholding images is noise. Image noise is often grainy and consists of random variations in brightness or color within an image. There are many factors that can contribute to image noise such as camera quality and film grain. As you can imagine, color variation during a process where we rely on color can make it difficult for us to accurately threshold. One method of reducing noise is by blurring our image. By blurring our image, we sacrifice detail for color consistency. Often times this loss in detail is acceptable, especially if we are mainly trying to isolate a target from the background, like the SUAS ODLCs.
+
+We will control the strength of the blur in the same way as in project 1, using OpenCV's `cv2.GaussianBlur` to apply a Gaussian kernel throughout the image.
+
+```python
+# Runs until the user quits
+while True:
+    img_copy = img
+    kernel = blur_strength * 2 + 1
+    
+    # Blur the image
+    img_blur = cv2.GaussianBlur(img_copy, (kernel, kernel), 0)
+```
+
+After blurring, we're ready to apply our image threshold. We can use OpenCV's `cv2.inRange` function and our `*_low` and `*_high` values to create an image mask that filters out colors in this range.
+> More on `cv2.inRange`: https://docs.opencv.org/3.4/da/d97/tutorial_threshold_inRange.html.
+
+ ```python
+ while True:
+    # code...
+
+    # Threshold images based on H, S, V
+    img_threshold = cv2.inRange(img_blur, (H_low, S_low, V_low), (H_high, S_high, V_high))
+ ```
+ 
+ Lastly, we'll display our images in our OpenCV window, so we can see how the image changes live as we move the HSV sliders. We'll use `np.hstack` again to put our original image on the left and our threshold mask on the right.
+
+ ```python
+ while True:
+    # code...
+
+    # Show image and mask side-by-side
+    img_blur = cv2.cvtColor(img_blur, cv2.COLOR_HSV2BGR)
+    img_threshold_3_channels = cv2.cvtColor(img_threshold, cv2.COLOR_GRAY2BGR)
+    img_stack = np.hstack((img_blur, img_threshold_3_channels))
+    cv2.imshow(window_name, img_stack)
+    
+    # Close window with 'q', save mask with 's'
+    key = cv2.waitKey(10)
+    if key == ord('q'):
+        break
+    if key == ord('s'):
+        cv2.imwrite("final_threshold.jpg", img_threshold)
+    
+cv2.destroyAllWindows()    
+ ```
+
+We're ready to test our code using the terminal!
+
+```console
+(env) marcusvc:~/mfly_cv/cv-starter-projects$ python3 cv_tutorial_2.py
+```
+
+Congratulations, you completed *Auton Computer Vision Tutorial 2: Image Filters*!
+
+
+## Conclusion
+
+Congratulations, this concludes your introduction to computer vision!
+
+We are always looking to make improvements to our material! This tutorial is very new, so any feedback you have is greatly appreciated. Please don't hesitate to message me on slack or via email (marcusvc@umich.edu). 

@@ -2,6 +2,7 @@
 # Marcus Chung (marcusvc@umich.edu)
 # 2024-06
 
+# Import OpenCV and numpy modules
 import cv2
 import numpy as np
 
@@ -11,7 +12,7 @@ MAX_VALUE_H = 360 // 2 - 1
 MAX_VALUE_BLUR = 20
 
 # Declare H, S, V starting values
-# H: (0, 180)  S: (0, 255)  V: (0, 255)
+# H: (0, 179)  S: (0, 255)  V: (0, 255)
 H_low = 0
 S_low = 0
 V_low = 0
@@ -32,46 +33,46 @@ blur_name = "Blur"
 window_name = "Auton CV Tutorial 2: Image Thresholding"
 
 # Functions to read trackbar values on update
-def on_H_low_update(val):
-    global H_low
-    H_low = min(val, H_high - 1)
+def on_H_update(_):
+    global H_low, H_high
+    
+    H_low = cv2.getTrackbarPos(H_low_name, window_name)
+    H_low = min(H_low, H_high - 1)
     cv2.setTrackbarPos(H_low_name, window_name, H_low)
-
-
-def on_H_high_update(val):
-    global H_high
-    H_high = max(val, H_low + 1)
+    
+    H_high = cv2.getTrackbarPos(H_high_name, window_name)
+    H_high = max(H_high, H_low + 1)
     cv2.setTrackbarPos(H_high_name, window_name, H_high)
-    
 
-def on_S_low_update(val):
-    global S_low
-    S_low = min(val, S_high - 1)
+
+def on_S_update(_):
+    global S_low, S_high
+    
+    S_low = cv2.getTrackbarPos(S_low_name, window_name)
+    S_low = min(S_low, S_high - 1)
     cv2.setTrackbarPos(S_low_name, window_name, S_low)
-
-
-def on_S_high_update(val):
-    global S_high
-    S_high = max(val, S_low + 1)
+    
+    S_high = cv2.getTrackbarPos(S_high_name, window_name)
+    S_high = max(S_high, S_low + 1)
     cv2.setTrackbarPos(S_high_name, window_name, S_high)
+
+
+def on_V_update(_):
+    global V_low, V_high
     
-    
-def on_V_low_update(val):
-    global V_low
-    V_low = min(val, V_high - 1)
+    V_low = cv2.getTrackbarPos(V_low_name, window_name)
+    V_low = min(V_low, V_high - 1)
     cv2.setTrackbarPos(V_low_name, window_name, V_low)
-
-
-def on_V_high_update(val):
-    global V_high
-    V_high = max(val, V_low + 1)
+    
+    V_high = cv2.getTrackbarPos(V_high_name, window_name)
+    V_high = max(V_high, V_low + 1)
     cv2.setTrackbarPos(V_high_name, window_name, V_high)
-    
-    
+
+
 def on_blur_update(val):
     global blur_strength
     blur_strength = val
-    
+
 
 # Limits image size
 def standard_scale(img):
@@ -86,12 +87,12 @@ def standard_scale(img):
 
 # Create window and trackbars
 cv2.namedWindow(window_name)
-cv2.createTrackbar(H_low_name, window_name, H_low, MAX_VALUE_H, on_H_low_update)
-cv2.createTrackbar(H_high_name, window_name, H_high, MAX_VALUE_H, on_H_high_update)
-cv2.createTrackbar(S_low_name, window_name, S_low, MAX_VALUE, on_S_low_update)
-cv2.createTrackbar(S_high_name, window_name, S_high, MAX_VALUE, on_S_high_update)
-cv2.createTrackbar(V_low_name, window_name, V_low, MAX_VALUE, on_V_low_update)
-cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_high_update)
+cv2.createTrackbar(H_low_name, window_name, H_low, MAX_VALUE_H, on_H_update)
+cv2.createTrackbar(H_high_name, window_name, H_high, MAX_VALUE_H, on_H_update)
+cv2.createTrackbar(S_low_name, window_name, S_low, MAX_VALUE, on_S_update)
+cv2.createTrackbar(S_high_name, window_name, S_high, MAX_VALUE, on_S_update)
+cv2.createTrackbar(V_low_name, window_name, V_low, MAX_VALUE, on_V_update)
+cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_update)
 cv2.createTrackbar(blur_name, window_name, blur_strength, MAX_VALUE_BLUR, on_blur_update)
 
 # Read image
