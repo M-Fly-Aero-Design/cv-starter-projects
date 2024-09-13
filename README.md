@@ -380,7 +380,7 @@ We're ready to run our script! We can run it just like we ran `cv_tutorial_1_key
 Congratulations, you completed *Auton Computer Vision Tutorial 1: Image Filters*!
 
 
-## Auton Computer Vision Tutorial 2: Image Filters
+## Auton Computer Vision Tutorial 2: Image Thresholding
 
 This project will introduce you to image thresholding. This is a very common task in computer vision, and it involves the process filtering out only certain parts of an image. For example, we might use image thresholding to filter out only the yellow parts of our plane in `mfly.png`.
 
