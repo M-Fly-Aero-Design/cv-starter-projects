@@ -20,11 +20,19 @@ grayscale_name = "Grayscale"
 window_name = "Auton CV Tutorial 1: Image Filters"
 
 
-def on_trackbar_update(_):
-    global blur, sharpen, grayscale
-    blur = cv2.getTrackbarPos(blur_name, window_name)
-    sharpen = cv2.getTrackbarPos(sharpen_name, window_name)
-    grayscale = cv2.getTrackbarPos(grayscale_name, window_name)
+def on_blur_update(x):
+    global blur
+    blur = x
+    
+
+def on_sharpen_update(x):
+    global sharpen
+    sharpen = x
+
+
+def on_grayscale_update(x):
+    global grayscale
+    grayscale = x
 
 
 # Limits image size
@@ -40,9 +48,9 @@ def standard_scale(img):
 
 # Create window and trackbars
 cv2.namedWindow(window_name)
-cv2.createTrackbar(blur_name, window_name, blur, MAX_VALUE, on_trackbar_update)
-cv2.createTrackbar(sharpen_name, window_name, sharpen, MAX_VALUE, on_trackbar_update)
-cv2.createTrackbar(grayscale_name, window_name, grayscale, MAX_VALUE, on_trackbar_update)
+cv2.createTrackbar(blur_name, window_name, blur, MAX_VALUE, on_blur_update)
+cv2.createTrackbar(sharpen_name, window_name, sharpen, MAX_VALUE, on_sharpen_update)
+cv2.createTrackbar(grayscale_name, window_name, grayscale, MAX_VALUE, on_grayscale_update)
 
 # Read image
 filename = "mfly.png"
