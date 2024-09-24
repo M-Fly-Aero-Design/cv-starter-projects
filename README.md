@@ -222,14 +222,22 @@ grayscale_name = "Grayscale"
 window_name = "Auton CV Tutorial 1: Image Filters"
 ```
 
-Let's write a function called `on_trackbar_update`. This function will be called everytime we move one of the sliders, and will update our `blur`, `sharpen`, and `grayscale` variables we just created.
+Let's write functions for handling the trackbar updates. These functions will be called everytime we move one of the sliders, and will update our `blur`, `sharpen`, and `grayscale` variables we just created.
 
 ```python
-def on_trackbar_update(_):
-    global blur, sharpen, grayscale
-    blur = cv2.getTrackbarPos(blur_name, window_name)
-    sharpen = cv2.getTrackbarPos(sharpen_name, window_name)
-    grayscale = cv2.getTrackbarPos(grayscale_name, window_name)
+def on_blur_update(x):
+    global blur
+    blur = x
+    
+
+def on_sharpen_update(x):
+    global sharpen
+    sharpen = x
+
+
+def on_grayscale_update(x):
+    global grayscale
+    grayscale = x
 ```
 
 We'll also write a function called `standard_scale`. Don't worry too much about this function, this will just scale any image we use so that it's a reasonable size.
@@ -252,9 +260,9 @@ Next, let's create our OpenCV window. This will create the actual window that yo
 ```python
 # Create window and trackbars
 cv2.namedWindow(window_name)
-cv2.createTrackbar(blur_name, window_name, blur, MAX_VALUE, on_trackbar_update)
-cv2.createTrackbar(sharpen_name, window_name, sharpen, MAX_VALUE, on_trackbar_update)
-cv2.createTrackbar(grayscale_name, window_name, grayscale, MAX_VALUE, on_trackbar_update)
+cv2.createTrackbar(blur_name, window_name, blur, MAX_VALUE, on_blur_update)
+cv2.createTrackbar(sharpen_name, window_name, sharpen, MAX_VALUE, on_sharpen_update)
+cv2.createTrackbar(grayscale_name, window_name, grayscale, MAX_VALUE, on_grayscale_update)
 ```
 
 Let's read our `mfly.png` image using `cv2.imread`. This will open our image and store it as a NxMx3 BGR color space matrix in `img`. We'll also use our `standard_scale` function from earlier to resize our image if necessary.  
@@ -439,45 +447,45 @@ Now we'll define our update functions, which update our HSV variables whenever w
 
 ```python
 # Functions to read trackbar values on update
-def on_H_update(_):
-    global H_low, H_high
-    
-    H_low = cv2.getTrackbarPos(H_low_name, window_name)
-    H_low = min(H_low, H_high - 1)
+def on_H_update(x):
+    global H_low
+    H_low = min(x, H_high - 1)
     cv2.setTrackbarPos(H_low_name, window_name, H_low)
-    
-    H_high = cv2.getTrackbarPos(H_high_name, window_name)
-    H_high = max(H_high, H_low + 1)
+
+
+def on_H_high_update(x):
+    global H_high
+    H_high = max(x, H_low + 1)
     cv2.setTrackbarPos(H_high_name, window_name, H_high)
 
 
-def on_S_update(_):
-    global S_low, S_high
-    
-    S_low = cv2.getTrackbarPos(S_low_name, window_name)
-    S_low = min(S_low, S_high - 1)
+def on_S_update(x):
+    global S_low
+    S_low = min(x, S_high - 1)
     cv2.setTrackbarPos(S_low_name, window_name, S_low)
-    
-    S_high = cv2.getTrackbarPos(S_high_name, window_name)
-    S_high = max(S_high, S_low + 1)
+
+
+def on_S_high_update(x):
+    global S_high
+    S_high = max(x, S_low + 1)
     cv2.setTrackbarPos(S_high_name, window_name, S_high)
 
 
-def on_V_update(_):
-    global V_low, V_high
-    
-    V_low = cv2.getTrackbarPos(V_low_name, window_name)
-    V_low = min(V_low, V_high - 1)
+def on_V_update(x):
+    global V_low
+    V_low = min(x, V_high - 1)
     cv2.setTrackbarPos(V_low_name, window_name, V_low)
-    
-    V_high = cv2.getTrackbarPos(V_high_name, window_name)
-    V_high = max(V_high, V_low + 1)
+
+
+def on_V_high_update(x):
+    global V_high
+    V_high = max(x, V_low + 1)
     cv2.setTrackbarPos(V_high_name, window_name, V_high)
 
 
-def on_blur_update(val):
+def on_blur_update(x):
     global blur_strength
-    blur_strength = val
+    blur_strength = x
 ```
 
 We'll also keep the same `standard_scale` function from project 1, as well as create our OpenCV window and the sliders.
@@ -497,11 +505,11 @@ def standard_scale(img):
 # Create window and trackbars
 cv2.namedWindow(window_name)
 cv2.createTrackbar(H_low_name, window_name, H_low, MAX_VALUE_H, on_H_update)
-cv2.createTrackbar(H_high_name, window_name, H_high, MAX_VALUE_H, on_H_update)
+cv2.createTrackbar(H_high_name, window_name, H_high, MAX_VALUE_H, on_H_high_update)
 cv2.createTrackbar(S_low_name, window_name, S_low, MAX_VALUE, on_S_update)
-cv2.createTrackbar(S_high_name, window_name, S_high, MAX_VALUE, on_S_update)
+cv2.createTrackbar(S_high_name, window_name, S_high, MAX_VALUE, on_S_high_update)
 cv2.createTrackbar(V_low_name, window_name, V_low, MAX_VALUE, on_V_update)
-cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_update)
+cv2.createTrackbar(V_high_name, window_name, V_high, MAX_VALUE, on_V_high_update)
 cv2.createTrackbar(blur_name, window_name, blur_strength, MAX_VALUE_BLUR, on_blur_update)
 ```
 
