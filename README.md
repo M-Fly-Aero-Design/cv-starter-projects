@@ -3,7 +3,7 @@
 Welcome! This readme will serve as an introduction to computer vision. Through these two tutorial projects, you'll have the opportunity to learn basic image processing techniques using common Python libraries such as OpenCV.
 
 Please don't hesitate to ask any questions you may have along the way!  
-Shoot me a message on slack, or via my email: marcusvc@umich.edu.
+Shoot me a message on slack, or via my email: jaclin@umich.edu.
 
 
 ## Overview
