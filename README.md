@@ -602,4 +602,4 @@ https://docs.google.com/presentation/d/1TcK1n973L2NGImNstsGdaaOLRAXpmAr_PJ3mE0L1
 
 Congratulations, this concludes your introduction to computer vision!
 
-We are always looking to make improvements to our material! This tutorial is very new, so any feedback you have is greatly appreciated. Please don't hesitate to message me on slack or via email (marcusvc@umich.edu). 
+We are always looking to make improvements to our material! This tutorial is very new, so any feedback you have is greatly appreciated. Please don't hesitate to message me on slack or via email (jaclin@umich.edu). 
